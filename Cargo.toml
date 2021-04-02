@@ -7,16 +7,16 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-graphql = "*"
-async-graphql-warp = "*"
-tokio = { version = "*", features = ["macros", "rt-multi-thread", "time"] }
-warp = "*"
-http = "0.2"
+async-graphql = { version = "2.7.4", features = ["tracing"] }
+async-graphql-warp = "2.7.4"
+tokio = { version = "1.4.0", features = ["macros", "rt-multi-thread", "time"] }
+warp = "0.3.1"
+http = "0.2.3"
 slab = "0.4.2"
-tracing = "*"
-tracing-futures = "*"
-tracing-subscriber = "*"
-opentelemetry = { version = "*", features = ["tokio-support"] }
-tracing-opentelemetry = "*"
-opentelemetry-otlp = "*"
-opentelemetry-jaeger = "*"
+tracing = "0.1.25"
+tracing-futures = "0.2.5"
+tracing-subscriber = "0.2.17"
+opentelemetry = "0.13.0"
+tracing-opentelemetry = "0.12.0"
+opentelemetry-otlp = "0.6.0"
+opentelemetry-jaeger = "0.12.1"

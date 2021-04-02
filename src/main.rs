@@ -1,26 +1,23 @@
 pub mod starwars;
 
 use crate::starwars::{QueryRoot, StarWars};
-use async_graphql::extensions::{Tracing, TracingConfig};
+use async_graphql::extensions::Tracing;
 use async_graphql::http::{playground_source, GraphQLPlaygroundConfig};
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use async_graphql_warp::{BadRequest, Response};
 use http::StatusCode;
 use std::convert::Infallible;
-use tracing_subscriber::filter::LevelFilter;
-use tracing_subscriber::registry;
 use warp::{http::Response as HttpResponse, Filter, Rejection};
 
-use opentelemetry::trace::{get_active_span, Tracer};
-use opentelemetry::KeyValue;
+use tracing::Instrument;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::Registry;
 
 #[tokio::main]
 async fn main() {
-    let (tracer, _unin) = opentelemetry_jaeger::new_pipeline()
+    let tracer = opentelemetry_jaeger::new_pipeline()
         .with_service_name("trace-demo")
-        .install()
+        .install_simple()
         .unwrap();
 
     let opentelemetry = tracing_opentelemetry::layer().with_tracer(tracer);
@@ -42,9 +39,10 @@ async fn main() {
             Schema<QueryRoot, EmptyMutation, EmptySubscription>,
             async_graphql::Request,
         )| async move {
-            let span = tracing::info_span!("request");
-            let request = request.data(TracingConfig::default().parent_span(span));
-            Ok::<_, Infallible>(Response::from(schema.execute(request).await))
+            let span = tracing::info_span!("root");
+            Ok::<_, Infallible>(Response::from(
+                schema.execute(request).instrument(span).await,
+            ))
         },
     );
 
